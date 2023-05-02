@@ -1,6 +1,38 @@
-# Example Terraform Project
 
-[![infracost](https://img.shields.io/endpoint?url=https://dashboard.api.infracost.io/shields/json/ff15881f-1875-469d-9e09-b9a9227ac666/repos/97ba57c7-0e4a-40cc-8b52-a398cafdc659/branch/6ed2d281-fbcd-45b6-905a-83a1ecde900c)](https://dashboard.infracost.io/org/infracost/repos/97ba57c7-0e4a-40cc-8b52-a398cafdc659)
+1. Clone this example repo and branch
 
-Use our [Get Started](https://www.infracost.io/docs) guide and the example AWS Terraform projects in this repo to see how Infracost works. The AWS Terraform project contains an EC2 instance and a Lambda function.
-There is also a google and azure example.
+```
+git clone -b s3usagefile https://github.com/infracost/example-terraform
+```
+
+2. Run a breakdown to ensure it works ok, total cost should show $12.6K total
+
+```
+infracost breakdown --path . --usage-file infracost-usage.yml
+```
+
+3. Generate a baseline json file to use for the what-if analysis
+
+```
+infracost breakdown --path . --usage-file infracost-usage.yml --format json --out-file infracost-base.json
+```
+
+4. Open infracost-usage.yml and change the aws_s3_bucket.data_bucket to move 100TB from standard to infrequent access:
+- standard > storage_gb: 500000 to 400000
+- uncomment standard_infrequent_access > storage_gb and set it to 100000
+
+5. Run a cost diff with the above change, it should show the cost diff, where standard costs are going down but infrequent access goes up
+
+```
+infracost diff --path . --usage-file infracost-usage.yml --compare-to infracost-base.json
+```
+
+6. Open infracost-usage.yml and change the aws_s3_bucket.data_bucket to move 100TB from standard to glacier deep archive:
+- standard > storage_gb: 400000 to 300000
+- uncomment glacier_deep_archive > storage_gb and set it to 100000
+
+7. Run a cost diff with the above change, where standard costs are going down further but glacier costs go up. Notice how much cheaper glacier is vs standard storage!
+
+```
+infracost diff --path . --usage-file infracost-usage.yml --compare-to infracost-base.json
+```
