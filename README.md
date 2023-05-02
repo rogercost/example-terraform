@@ -3,6 +3,8 @@
 
 ```
 git clone -b s3usagefile https://github.com/infracost/example-terraform
+
+cd example-terraform
 ```
 
 2. Run a breakdown to ensure it works ok, total cost should show $12.6K total
